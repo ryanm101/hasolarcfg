@@ -1,0 +1,43 @@
+template:
+  - sensor:
+    # Normal Rates
+    - name: "Electricity Peak Tariff"
+      unique_id: electricity_peak_tariff
+      icon: mdi:cash-plus
+      unit_of_measurement: "£/kWh"
+      state: >
+        0.3458
+    - name: "Electricity Offpeak Tariff"
+      unique_id: electricity_offpeak_tariff
+      icon: mdi:cash-plus
+      unit_of_measurement: "£/kWh"
+      state: >
+        0.1898
+    # Discounted Rates
+    - name: "Electricity Peak Tariff Discount Rate"
+      unique_id: electricity_peak_tariff_discount_rate
+      icon: mdi:cash-plus
+      unit_of_measurement: "£/kWh"
+      state: >
+        0.1609
+    - name: "Electricity Offpeak Tariff Discount Rate"
+      unique_id: electricity_offpeak_tariff_discount_rate
+      icon: mdi:cash-plus
+      unit_of_measurement: "£/kWh"
+      state: >
+        0.0995
+    # Export Rates
+    - name: "Electricity Export Tariff"
+      unique_id: electricity_export_tariff
+      icon: mdi:cash-plus
+      unit_of_measurement: "£/kWh"
+      state: >
+        0.1766
+    # Export Profitable
+  - binary_sensor:
+    - name: "Electricity Import Profitable"
+      unique_id: electricity_import_profitable
+      icon: mdi:cash-plus
+      state: >
+        {{ ((states('sensor.electricity_export_tariff') | float - states('sensor.electricity_offpeak_tariff_discount_rate') | float)  > 0) and states('sensor.electricity_offpeak_tariff_discount_rate') != 0 }}        
+        

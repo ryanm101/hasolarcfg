@@ -1,0 +1,147 @@
+template:
+  - sensor:
+    - name: "Solar Selfconsumption Ratio"
+      unique_id: solar_selfconsumption_ratio
+      icon: mdi:percent-outline
+      state: >
+        {% set panel_to_house_daily = states('sensor.solar_panel_to_house_daily') | float(0) %}
+        {% set battery_in_daily = states('sensor.solar_battery_in_daily') | float(0) %}
+        {% set exported_power_daily = states('sensor.solar_exported_power_daily') | float(0) %}
+
+        {% if (panel_to_house_daily + battery_in_daily + exported_power_daily <= 0) %}
+          0
+        {% else %}
+          {{ ((panel_to_house_daily + battery_in_daily) / (panel_to_house_daily + battery_in_daily + exported_power_daily) * 100) | round (1) }}
+        {% endif %}
+
+    - name: "Solar Autarkie Ratio"
+      unique_id: solar_autarkie_ratio
+      icon: mdi:percent-outline
+      state: >
+        {% set house_consumption_daily = states('sensor.solar_house_consumption_daily') | float(0) %}
+        {% set imported_power_daily = states('sensor.solar_imported_power_daily') | float(0) %}
+
+        {% if (house_consumption_daily <= 0) %}
+          0
+        {% else %}
+          {{ (1 - (imported_power_daily / house_consumption_daily) * 100) | round (1) }}
+        {% endif %}
+
+    - name: "Solar Inverter Effectiveness"
+      unique_id: solar_inverter_effectiveness
+      icon: mdi:percent-outline
+      unit_of_measurement: "%"
+      state: >
+        {% set i1_dc_power = states('sensor.solaredge_i1_dc_power') | float(0) %}
+        {% set i1_ac_power = states('sensor.solaredge_i1_ac_power') | float(0) %}
+        {% set inverter_effectiveness = states('sensor.solar_inverter_effectiveness') %}
+
+        {% if (is_state('sensor.solar_inverter_effectiveness', 'unknown')) %}
+          1
+        {% elif (i1_dc_power < 100 or i1_ac_power  < 100) %}
+          {{ inverter_effectiveness }}
+        {% else %}
+          {{ (i1_ac_power ) / (i1_dc_power) }}
+        {% endif %}
+      availability: >
+        {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number }}        
+
+    - name: "Solar Battery Effectiveness"
+      unique_id: solar_battery_effectiveness
+      icon: mdi:percent-outline
+      unit_of_measurement: "%"
+      state: >
+        {% set i1_dc_power = states('sensor.solaredge_i1_dc_power') | float(0) %}
+        {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %}
+        {% set battery_effectiveness = states('sensor.solar_battery_effectiveness') %}
+
+        {% if (is_state('sensor.solar_battery_effectiveness', 'unknown') or (solar_battery_effectiveness == 0)) %}
+          1
+        {% elif (i1_dc_power + b1_dc_power <= 0) %}
+          {% if (b1_dc_power >= 0 or i1_dc_power <= 0) %}
+            {{ battery_effectiveness }}
+          {% else %}
+            {{ (1 - ((b1_dc_power * -1 - (i1_dc_power)) / b1_dc_power * -1)) }}
+          {% endif %} 
+        {% else %}
+          {{ battery_effectiveness }}
+        {% endif %}
+      availability: >
+        {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number }}
+
+    - name: "Solar Inverter Effectiveness Int"
+      unique_id: solar_inverter_effectiveness_int
+      icon: mdi:percent-outline
+      unit_of_measurement: "%"
+      state: >
+        {{ ((states('sensor.solar_inverter_effectiveness') | float(0)) * 100) | round(2) }}
+
+    - name: "Solar Battery Effectiveness Int"
+      unique_id: solar_battery_effectiveness_int
+      icon: mdi:percent-outline
+      unit_of_measurement: "%"
+      state: >
+        {{ ((states('sensor.solar_battery_effectiveness')| float(0)) * 100) | round(2) }}
+
+    - name: "Solar Inverter Effectiveness Average Int"
+      unique_id: solar_inverter_effectiveness_average_int
+      icon: mdi:percent-outline
+      unit_of_measurement: "%"
+      state: >
+        {{ ((states('sensor.solar_inverter_effectiveness_average') | float(0)) * 100) | round(2) }}
+
+    - name: "Solar Battery Effectiveness Average Int"
+      unique_id: solar_battery_effectiveness_average_int
+      icon: mdi:percent-outline
+      unit_of_measurement: "%"
+      state: >
+        {{ ((states('sensor.solar_battery_effectiveness_average')| float(0)) * 100) | round(2) }}
+        
+    # Battery Stats    
+    - name: "Solaredge B1 Status Text"
+      unique_id: solaredge_b1_status_text
+      state: >
+        {% set status = states('sensor.solaredge_b1_status') %}
+        {% if status == '1' %}Off
+        {% elif status == '3' %}Charging
+        {% elif status == '4' %}Discharging
+        {% elif status == '6' %}Preserve Charge
+        {% else %}{{ states('sensor.solaredge_b1_status') }}
+        {% endif %}
+
+    - name: "Solar Battery Time to Charge"     
+      unique_id: battery_time_to_full
+      unit_of_measurement: "hours"
+      state: >
+        {% set ct = ((states('sensor.solaredge_b1_maximum_energy') | float * (100 - states('sensor.solaredge_b1_state_of_energy')| float) /100) / ((states('sensor.solaredge_b1_dc_power') |float)/1000) * 60) | int %}
+        {{ ct | timestamp_custom('%H:%M', true) }}
+      availability: >
+        {{ states('sensor.solaredge_b1_status_text') == 'Charging' }}
+        
+    # WRONG!!!!!
+    - name: "Solar Battery Time to Empty"     
+      unique_id: battery_time_to_empty
+      state: >
+        {% set ct = ((states('sensor.solaredge_b1_maximum_energy') | float * (100 - states('sensor.solaredge_b1_state_of_energy')| float) /100) / ((states('sensor.solaredge_b1_dc_power') |float *-1)/1000) * 60) | int %}
+        {% if ct > 60 %}{{ ct // 60 }}:{{ '{:0>2d}'.format(ct%60) }} hours{% else %}{{ct}} minutes{% endif %}
+      availability: >
+        {{ states('sensor.solaredge_b1_status_text') == 'Discharging' }}
+
+sensor:
+  - platform: statistics
+    name: "Solar Battery Effectiveness Average"
+    unique_id: solar_battery_effectiveness_average
+    state_characteristic: mean
+    sampling_size: 1200
+    max_age:
+      hours: 24
+    entity_id: sensor.solar_battery_effectiveness
+
+  - platform: statistics
+    name: "Solar Inverter Effectiveness Average"
+    unique_id: solar_inverter_effectiveness_average
+    state_characteristic: mean
+    sampling_size: 1200
+    max_age:
+      hours: 24
+    entity_id: sensor.solar_inverter_effectiveness

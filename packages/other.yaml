@@ -1,0 +1,17 @@
+template:
+  - sensor:
+    - name: "Sun Rise Today"
+      unique_id: sunrise_today
+      unit_of_measurement: 'Time'
+      icon: mdi:weather-sunset-up
+      state: "{{ as_timestamp(state_attr('sun.sun','next_rising')) |timestamp_custom('%H:%M') }}"
+    - name: "Sun Set Today"
+      unique_id: sunset_today
+      unit_of_measurement: 'Time'
+      icon: mdi:weather-sunset-down
+      state: "{{ as_timestamp(state_attr('sun.sun','next_setting')) |timestamp_custom('%H:%M') }}"
+    - name: "Daylight Today"
+      unique_id: sundaylight_today
+      unit_of_measurement: 'Hours'
+      icon: mdi:weather-sunny
+      state: "{{ (as_timestamp(state_attr('sun.sun','next_setting')) - as_timestamp(state_attr('sun.sun','next_rising'))) |timestamp_custom('%H:%M', false) }}"

@@ -1,0 +1,101 @@
+automation:
+  - alias: Charge Solar Battery From Grid
+    id: charge_solar_battery_from_grid
+    mode: single
+    trigger:
+    - platform: state
+      entity_id:
+        - select.solar_imported_power_daily
+      to: offpeak
+    condition:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: select.solar_imported_power_daily
+          state: offpeak
+        - type: is_value
+          condition: device
+          device_id: 758241f74124df3fe7af56b6d84e1410
+          entity_id: sensor.solaredge_b1_state_of_energy
+          domain: sensor
+          below: 100
+    action:
+    - service: select.select_option
+      data:
+        option: Charge from Solar Power and Grid
+      target:
+        entity_id: select.solaredge_i1_storage_default_mode
+    - service: select.select_option
+      data:
+        option: Always Allowed
+      target:
+        entity_id: select.solaredge_i1_ac_charge_policy
+  - alias: Discharge Solar Battery
+    id: discharge_solar_battery
+    description: "Export Battery to Grid"
+    mode: single
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.solaredge_b1_state_of_energy
+      above: 98
+    condition:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: binary_sensor.import_profitable
+          state: "on"
+        - condition: state
+          entity_id: select.solar_house_consumption_daily
+          state: offpeak
+        - condition: time
+          before: "07:00:00"
+    action:
+    - service: select.select_option
+      data:
+        option: Discharge to Maximize Export
+      target:
+        entity_id: select.solaredge_i1_storage_command_mode
+  - alias: Disable Solar Battery
+    id: disable_solar_battery
+    description: ""
+    mode: single
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.solaredge_b1_state_of_energy
+      above: 99
+    condition:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: binary_sensor.import_profitable
+          state: "off"
+        - condition: state
+          entity_id: select.solar_imported_power_daily
+          state: offpeak
+    action:
+    - service: select.select_option
+      data:
+        option: Solar Power Only (Off)
+      target:
+        entity_id: select.solaredge_i1_storage_default_mode
+  - alias: Charge Solar Battery From PV Only
+    id: charge_solar_battery_from_pv_only
+    description: ""
+    mode: single
+    trigger:
+    - platform: state
+      entity_id:
+        - select.solar_imported_power_daily
+      to: peak
+    action:
+    - service: select.select_option
+      data:
+        option: Maximize Self Consumption
+      target:
+        entity_id: select.solaredge_i1_storage_default_mode
+    - service: select.select_option
+      data:
+        option: Disabled
+      target:
+        entity_id: select.solaredge_i1_ac_charge_policy
+    
