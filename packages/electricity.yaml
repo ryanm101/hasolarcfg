@@ -154,7 +154,7 @@ template:
           {% set i1_dc_power = states('sensor.solaredge_i1_dc_power') | float(0) %}
 
           {% if (i1_ac_power <= -25 and b1_dc_power > 0) %} {#added -25 instead of 0#}
-            {{ i1_dc_power|abs }} {# Changed to i1_dc_power #}
+            {{ i1_dc_power * -1 }} {# Changed to i1_dc_power #}
           {% else %}
             0
           {% endif %}

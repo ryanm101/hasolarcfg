@@ -55,7 +55,7 @@ template:
         {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %}
         {% set battery_effectiveness = states('sensor.solar_battery_effectiveness') %}
 
-        {% if (is_state('sensor.solar_battery_effectiveness', 'unknown') or (solar_battery_effectiveness == 0)) %}
+        {% if (is_state('sensor.solar_battery_effectiveness', 'unavailable') or is_state('sensor.solar_battery_effectiveness', 'unknown') or (battery_effectiveness == 0)) %}
           1
         {% elif (i1_dc_power + b1_dc_power <= 0) %}
           {% if (b1_dc_power >= 0 or i1_dc_power <= 0) %}
