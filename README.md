@@ -1,5 +1,6 @@
 # Solaredge Homeassistant Modbus integration config
 
+This is effectively a copy of: https://community.home-assistant.io/t/solaredge-modbus-configuration-for-single-inverter-and-battery/464084 with some additions of my own such as tariffs. All credit for the inital work goes to https://community.home-assistant.io/u/remko/summary I've just added to what was done by remko. 
 
 ## Pre-Req
 
@@ -41,7 +42,3 @@ homeassistant:
 ```
 
 * Copy the packages dir from this repo to `/config` on your home assistant installation
-
-
-
-
