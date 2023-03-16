@@ -50,9 +50,9 @@ homeassistant:
 
 ## Notes
 
-* Check https://github.com/ryanm101/hasolarcfg/blob/actiontest/packages/energy_utilities.yaml as I use Tariffs with some non-standard billing cycles (monthly)
-* Check https://github.com/ryanm101/hasolarcfg/blob/actiontest/packages/electricity_tarriff_automations.yaml as you many not want all the tariffs I do, (notably the `household_*` are old ones i need that I'm deprecating in my own code elsewhere)
-* Check https://github.com/ryanm101/hasolarcfg/blob/actiontest/packages/energy_automations.yaml I change the battery during MY offpeak period yours may be different. This ideally should be a sensor for where i have specific times, but that is on the TODO. Also BEWARE I have an automation that Discharges the battery IF I can import cheaper than I export, if so I cycle between charge and discharge. THIS COULD COST YOU MONEY!!!!!!!!!
+* Check https://github.com/ryanm101/hasolarcfg/blob/master/packages/energy_utilities.yaml as I use Tariffs with some non-standard billing cycles (monthly)
+* Check https://github.com/ryanm101/hasolarcfg/blob/master/packages/electricity_tarriff_automations.yaml as you many not want all the tariffs I do, (notably the `household_*` are old ones i need that I'm deprecating in my own code elsewhere)
+* Check https://github.com/ryanm101/hasolarcfg/blob/master/packages/energy_automations.yaml I change the battery during MY offpeak period yours may be different. This ideally should be a sensor for where i have specific times, but that is on the TODO. Also BEWARE I have an automation that Discharges the battery IF I can import cheaper than I export, if so I cycle between charge and discharge. THIS COULD COST YOU MONEY!!!!!!!!!
 
 
 ## Helper scripts (NOT Homeassistant scripts)
