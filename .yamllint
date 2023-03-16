@@ -47,6 +47,7 @@ rules:
     present: true
     ignore: |
       config/known_devices.yaml
+      packages/*.yaml
   empty-lines:
     level: error
     max: 1
