@@ -113,8 +113,9 @@ template:
       unique_id: battery_time_to_full
       unit_of_measurement: "hours"
       state: >
-        {% set ct = ((states('sensor.solaredge_b1_maximum_energy') | float * (100 - states('sensor.solaredge_b1_state_of_energy')| float) /100) / ((states('sensor.solaredge_b1_dc_power') |float)/1000) * 60) | int %}
-        {{ ct | timestamp_custom('%H:%M', true) }}
+        {% set wattsToCharge = ((states('sensor.solaredge_b1_maximum_energy') | float(0) *1000)/100)*(100 - states('sensor.solaredge_b1_state_of_energy') | float) %}
+        {% set totalhrs =  (wattsToCharge | float / states('sensor.solaredge_b1_dc_power') | float) | round(2) %}
+        {{ '%02d:%02d' | format((totalhrs | int),((totalhrs*60) % 60) | round(0)) }}
       availability: >
         {{ states('sensor.solaredge_b1_status_text') == 'Charging' }}
         
