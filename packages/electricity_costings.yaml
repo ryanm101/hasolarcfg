@@ -123,36 +123,3 @@ template:
       state: >
         {% set compensation = (states('sensor.solar_exported_power_yearly') | float(0)) * (states('sensor.electricity_export_tariff') | float(0)) %}
         {{ (compensation) | round(2) }}
-        
-    # Discounted Daily Accounting
-    - name: "Solar Accounting Peak Daily Discounted"
-      unique_id: solar_accounting_peak_daily_discounted
-      icon: mdi:currency-gbp
-      unit_of_measurement: "£"
-      state: >
-        {% set peak_cost = (states('sensor.solar_imported_power_daily_peak') | float(0)) * (states('sensor.electricity_peak_tariff_discount_rate') | float(0)) %}
-        {{ (peak_cost) | round(2) }}
-      availability: >
-        {{ states('sensor.electricity_peak_tariff_discount_rate') > 0}}
-    
-    - name: "Solar Accounting Offpeak Daily Discounted"
-      unique_id: solar_accounting_offpeak_daily_discounted
-      icon: mdi:currency-gbp
-      unit_of_measurement: "£"
-      state: >
-        {% set offpeak_cost = (states('sensor.solar_imported_power_daily_offpeak') | float(0)) * (states('sensor.electricity_offpeak_tariff_discount_rate') | float(0)) %}
-        {{ (offpeak_cost) | round(2) }}
-      availability: >
-        {{ states('sensor.electricity_offpeak_tariff_discount_rate') > 0}}
-
-    - name: "Solar Accounting Total Daily Discounted"
-      unique_id: solar_accounting_total_daily_discounted
-      icon: mdi:currency-gbp
-      unit_of_measurement: "£"
-      state: >
-        {% set compensation = (states('sensor.solar_accounting_peak_daily_discounted') | float(0)) + (states('sensor.solar_accounting_offpeak_daily_discounted') | float(0)) %}
-        {{ (compensation) | round(2) }}
-      availability: >
-        {{ states('sensor.electricity_peak_tariff_discount_rate') > 0 }}
-
-
