@@ -43,6 +43,8 @@ homeassistant:
       device_class: energy
     sensor.solar_house_consumption_kwh:
       device_class: energy
+    sensor.solar_battery_to_grid_kwh:
+      device_class: energy
 ```
 
 * Copy the packages dir from this repo to `/config` on your home assistant installation
