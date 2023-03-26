@@ -64,7 +64,7 @@ template:
             {{ (1 - ((b1_dc_power * -1 - (i1_dc_power)) / b1_dc_power * -1)) }}
           {% endif %} 
         {% else %}
-          {{ battery_effectiveness }}
+          1
         {% endif %}
       availability: >
         {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number }}
