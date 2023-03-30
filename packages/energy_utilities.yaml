@@ -34,6 +34,13 @@ utility_meter:
     tariffs:
       - peak
       - offpeak
+  solar_battery_to_grid_daily:
+    source: sensor.solar_battery_to_grid_kwh
+    name: Solar Battery Exported Daily
+    cycle: daily
+    tariffs:
+      - peak
+      - offpeak
   solar_battery_from_panels_daily:
     source: sensor.solar_panel_to_battery_kwh
     name: Solar Battery Generated Daily
@@ -98,6 +105,13 @@ utility_meter:
     tariffs:
       - peak
       - offpeak
+  solar_battery_to_grid_weekly:
+    source: sensor.solar_battery_to_grid_kwh
+    name: Solar Battery Exported Weekly
+    cycle: weekly
+    tariffs:
+      - peak
+      - offpeak
   solar_battery_from_panels_weekly:
     source: sensor.solar_panel_to_battery_kwh
     name: Solar Battery Generated Weekly
@@ -157,6 +171,13 @@ utility_meter:
   solar_battery_from_grid_monthly:
     source: sensor.solar_grid_to_battery_kwh
     name: Solar Battery Imported Monthly
+    cron: "0 0 19 * *"
+    tariffs:
+      - peak
+      - offpeak
+  solar_battery_to_grid_monthly:
+    source: sensor.solar_battery_to_grid_kwh
+    name: Solar Battery Exported Monthly
     cron: "0 0 19 * *"
     tariffs:
       - peak
@@ -227,6 +248,13 @@ utility_meter:
   solar_battery_from_grid_yearly:
     source: sensor.solar_grid_to_battery_kwh
     name: Solar Battery Imported Yearly
+    cycle: yearly
+    tariffs:
+      - peak
+      - offpeak
+  solar_battery_to_grid_yearly:
+    source: sensor.solar_battery_to_grid_kwh
+    name: Solar Battery Exported Yearly
     cycle: yearly
     tariffs:
       - peak

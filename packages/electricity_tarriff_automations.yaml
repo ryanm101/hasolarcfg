@@ -156,3 +156,23 @@ automation:
       service: select.select_option
       target:
         entity_id: select.solar_house_consumption_yearly
+    - data:
+        option: "{{ tariff }}"
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_to_grid_yearly
+    - data:
+        option: "{{ tariff }}"
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_to_grid_monthly
+    - data:
+        option: "{{ tariff }}"
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_to_grid_weekly
+    - data:
+        option: "{{ tariff }}"
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_to_grid_daily
