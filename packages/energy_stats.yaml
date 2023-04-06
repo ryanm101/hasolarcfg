@@ -24,7 +24,7 @@ template:
         {% if (house_consumption_daily <= 0) %}
           0
         {% else %}
-          {{ (1 - (imported_power_daily / house_consumption_daily) * 100) | round (1) }}
+          {{ ((1 - (imported_power_daily / house_consumption_daily)) * 100) | round (1) }}
         {% endif %}
 
     - name: "Solar Inverter Effectiveness"

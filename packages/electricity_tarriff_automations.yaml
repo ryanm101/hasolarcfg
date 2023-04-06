@@ -41,138 +41,133 @@ automation:
         entity_id: select.household_grid_to_battery_yearly
       data:
         option: '{{ tariff }}'
-    - service: select.select_option
-      target:
-        entity_id: select.household_imported_power_daily
-      data:
-        option: '{{ tariff }}'
-    - service: select.select_option
-      target:
-        entity_id: select.household_imported_power_monthly
-      data:
-        option: '{{ tariff }}'
-    - service: select.select_option
-      target:
-        entity_id: select.household_imported_power_yearly
-      data:
-        option: '{{ tariff }}'
     - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
       service: select.select_option
       target:
         entity_id: select.solar_imported_power_daily_solaredge
     - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
       service: select.select_option
       target:
         entity_id: select.solar_imported_power_daily
     - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
       service: select.select_option
       target:
         entity_id: select.solar_battery_from_grid_daily
     - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_to_grid_daily
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_out_daily
+    - data:
+        option: '{{ tariff }}'
       service: select.select_option
       target:
         entity_id: select.solar_house_consumption_daily
     - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
       service: select.select_option
       target:
         entity_id: select.solar_imported_power_weekly_solaredge
     - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
       service: select.select_option
       target:
         entity_id: select.solar_imported_power_weekly
     - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
       service: select.select_option
       target:
         entity_id: select.solar_battery_from_grid_weekly
     - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_house_consumption_weekly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_imported_power_monthly_solaredge
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_imported_power_monthly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_battery_from_grid_monthly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_battery_in_monthly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_battery_out_monthly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_house_consumption_monthly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_imported_power_yearly_solaredge
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_imported_power_yearly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_battery_from_grid_yearly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_battery_in_yearly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_battery_out_yearly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_house_consumption_yearly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_battery_to_grid_yearly
-    - data:
-        option: "{{ tariff }}"
-      service: select.select_option
-      target:
-        entity_id: select.solar_battery_to_grid_monthly
-    - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
       service: select.select_option
       target:
         entity_id: select.solar_battery_to_grid_weekly
     - data:
-        option: "{{ tariff }}"
+        option: '{{ tariff }}'
       service: select.select_option
       target:
-        entity_id: select.solar_battery_to_grid_daily
+        entity_id: select.solar_battery_out_weekly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_house_consumption_weekly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_imported_power_monthly_solaredge
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_imported_power_monthly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_from_grid_monthly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_to_grid_monthly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_in_monthly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_out_monthly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_house_consumption_monthly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_imported_power_yearly_solaredge
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_imported_power_yearly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_from_grid_yearly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_to_grid_yearly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_in_yearly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_battery_out_yearly
+    - data:
+        option: '{{ tariff }}'
+      service: select.select_option
+      target:
+        entity_id: select.solar_house_consumption_yearly

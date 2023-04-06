@@ -53,6 +53,9 @@ utility_meter:
     source: sensor.solar_battery_out_kwh
     name: Solar Battery Out Daily
     cycle: daily
+    tariffs:
+      - peak
+      - offpeak
 
 # Electricity Export
   solar_exported_power_daily:
@@ -124,6 +127,9 @@ utility_meter:
     source: sensor.solar_battery_out_kwh
     name: Solar Battery Out Weekly
     cycle: weekly
+    tariffs:
+      - peak
+      - offpeak
 
 # Electricity Export
   solar_exported_power_weekly:
