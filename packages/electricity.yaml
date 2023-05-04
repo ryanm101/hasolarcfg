@@ -119,13 +119,19 @@ template:
         unit_of_measurement: "W"
         icon: mdi:solar-power
         state: >
-          {% set exported_power_w = states('sensor.solar_exported_power_w') | float(0) %}
-          {% set panel_to_grid_w = states('sensor.solar_panel_to_grid_w') | float(0) %}
+          {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %} 
+          {% set battery_effectiveness = states('sensor.solar_battery_effectiveness') | float(0) %} 
+          {% set inverter_effectiveness = states('sensor.solar_inverter_effectiveness') | float(0) %} 
+          {% set panel_production_w = states('sensor.solar_panel_production_w') | float(0) %} 
+          {% set house_consumption_w = states('sensor.solar_house_consumption_w') | float (0) %}
+          {% set battery_to_grid_w = states('sensor.solar_battery_to_grid_w') | float (0) %}
 
-          {% if (exported_power_w > panel_to_grid_w) %}
-            {{ exported_power_w - panel_to_grid_w }}
-          {% else %}
+          {% if battery_to_grid_w >= 0 and panel_production_w > house_consumption_w %}
             0
+          {% elif b1_dc_power < 0 %} 
+            {{ (b1_dc_power * -1 * battery_effectiveness * inverter_effectiveness) }}
+          {% else %}
+              0
           {% endif %}
 
       - name: "Solar Grid To House W"
