@@ -151,24 +151,24 @@ utility_meter:
   solar_panel_to_house_monthly:
     source: sensor.solar_panel_to_house_kwh
     name: Solar Panel To House Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
   solar_panel_production_monthly:
     source: sensor.solar_panel_production_kwh
     name: Solar Panel Production Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
 
 # Electricity Grid
   solar_imported_power_monthly_solaredge:
     source: sensor.solaredge_m1_imported_kwh
     name: Solar Imported Power Monthly Solar Edge
-    cron: "0 0 19 * *"
+    cycle: monthly
     tariffs:
       - peak
       - offpeak
   solar_imported_power_monthly:
     source: sensor.solar_imported_power_kwh
     name: Solar Imported Power Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
     tariffs:
       - peak
       - offpeak
@@ -177,32 +177,32 @@ utility_meter:
   solar_battery_from_grid_monthly:
     source: sensor.solar_grid_to_battery_kwh
     name: Solar Battery Imported Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
     tariffs:
       - peak
       - offpeak
   solar_battery_to_grid_monthly:
     source: sensor.solar_battery_to_grid_kwh
     name: Solar Battery Exported Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
     tariffs:
       - peak
       - offpeak
   solar_battery_from_panels_monthly:
     source: sensor.solar_panel_to_battery_kwh
     name: Solar Battery Generated Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
   solar_battery_in_monthly:
     source: sensor.solar_battery_in_kwh
     name: Solar Battery In Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
     tariffs:
       - peak
       - offpeak
   solar_battery_out_monthly:
     source: sensor.solar_battery_out_kwh
     name: Solar Battery Out Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
     tariffs:
       - peak
       - offpeak
@@ -211,13 +211,13 @@ utility_meter:
   solar_exported_power_monthly:
     source: sensor.solar_exported_power_kwh
     name: Solar Exported Power Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
 
 # Consumption
   solar_house_consumption_monthly:
     source: sensor.solar_house_consumption_kwh
     name: Solar House Consumption Monthly
-    cron: "0 0 19 * *"
+    cycle: monthly
     tariffs:
       - peak
       - offpeak
