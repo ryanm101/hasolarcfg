@@ -111,7 +111,6 @@ template:
 
     - name: "Solar Battery Time to Charge"     
       unique_id: battery_time_to_full
-      unit_of_measurement: "hours"
       state: >
         {% set wattsToCharge = ((states('sensor.solaredge_b1_maximum_energy') | float(0) *1000)/100)*(100 - states('sensor.solaredge_b1_state_of_energy') | float) %}
         {% set totalhrs =  (wattsToCharge | float / states('sensor.solaredge_b1_dc_power') | float) | round(2) %}
