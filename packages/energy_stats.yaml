@@ -102,10 +102,15 @@ template:
       unique_id: solaredge_b1_status_text
       state: >
         {% set status = states('sensor.solaredge_b1_status') %}
-        {% if status == '1' %}Off
-        {% elif status == '3' %}Charging
-        {% elif status == '4' %}Discharging
-        {% elif status == '6' %}Preserve Charge
+        {% if status == 'B_STATUS_OFF' %}Off
+        {% elif status == 'B_STATUS_STANDBY' %}Standby
+        {% elif status == 'B_STATUS_INIT' %}Initialise
+        {% elif status == 'B_STATUS_CHARGE' %}Charging
+        {% elif status == 'B_STATUS_DISCHARGE' %}Discharging
+        {% elif status == 'B_STATUS_FAULT' %}Fault
+        {% elif status == 'B_STATUS_PRESERVE_CHARGE' %}Preserve Charge
+        {% elif status == 'B_STATUS_IDLE' %}Idle
+        {% elif status == 'B_STATUS_POWER_SAVING' %}Power saving
         {% else %}{{ states('sensor.solaredge_b1_status') }}
         {% endif %}
 
