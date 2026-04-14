@@ -123,5 +123,3 @@ template:
         {{ (compensation) | round(2) }}
       availability: >
         {{ states('sensor.electricity_peak_tariff_discount_rate') > 0 }}
-
-

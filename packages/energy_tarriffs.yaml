@@ -6,33 +6,40 @@ template:
       icon: mdi:cash-plus
       unit_of_measurement: "£/kWh"
       state: >
-        0.3458
+        0.2860
     - name: "Electricity Offpeak Tariff"
       unique_id: electricity_offpeak_tariff
       icon: mdi:cash-plus
       unit_of_measurement: "£/kWh"
       state: >
-        0.1898
+        0.1389
     # Discounted Rates
     - name: "Electricity Peak Tariff Discount Rate"
       unique_id: electricity_peak_tariff_discount_rate
       icon: mdi:cash-plus
       unit_of_measurement: "£/kWh"
       state: >
-        0.1609
+        0.2860
     - name: "Electricity Offpeak Tariff Discount Rate"
       unique_id: electricity_offpeak_tariff_discount_rate
       icon: mdi:cash-plus
       unit_of_measurement: "£/kWh"
       state: >
-        0.0995
+        0.1389
     # Export Rates
     - name: "Electricity Export Tariff"
       unique_id: electricity_export_tariff
       icon: mdi:cash-plus
       unit_of_measurement: "£/kWh"
       state: >
-        0.1766
+        0.9640
+    # Daily Standing Charge
+    - name: "Electricity Daily Standing Charge"
+      unique_id: electricity_daily_standing_charge
+      icon: mdi:cash-plus
+      unit_of_measurement: "£/kWh"
+      state: >
+        0.1333
     # Export Profitable
   - binary_sensor:
     - name: "Electricity Import Profitable"

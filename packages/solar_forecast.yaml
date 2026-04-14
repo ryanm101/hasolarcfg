@@ -1,0 +1,37 @@
+---
+# Requires forecast.solar integration
+# I have 3 'sets' of panels in differing positions
+
+#sensor.power_highest_peak_time_today
+#sensor.power_highest_peak_time_today_2
+#sensor.power_highest_peak_time_today_3
+
+#sensor.energy_production_tomorrow
+#sensor.energy_production_tomorrow_2
+#sensor.energy_production_tomorrow_3
+
+#sensor.energy_production_today
+#sensor.energy_production_today_2
+#sensor.energy_production_today_3
+
+
+template:
+  - sensor:
+    - name: "Forecast Total Production Today"
+      unique_id: forecast_total_production_today
+      icon: mdi:weather-sunny
+      state: >
+        {% set eastPanels = states('sensor.energy_production_today') | float(1) %}
+        {% set southPanels = states('sensor.energy_production_today_2') | float(1) %}
+        {% set westPanels = states('sensor.energy_production_today_3') | float(1) %}
+        {{ eastPanels + southPanels + westPanels }}
+        
+    - name: "Forecast Total Production Tomorrow"
+      unique_id: forecast_total_production_tomorrow
+      icon: mdi:weather-sunny
+      state: >
+        {% set eastPanels = states('sensor.energy_production_tomorrow') | float(1) %}
+        {% set southPanels = states('sensor.energy_production_tomorrow_2') | float(1) %}
+        {% set westPanels = states('sensor.energy_production_tomorrow_3') | float(1) %}
+        {{ eastPanels + southPanels + westPanels }}
+        

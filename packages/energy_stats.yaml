@@ -64,7 +64,7 @@ template:
             {{ (1 - ((b1_dc_power * -1 - (i1_dc_power)) / b1_dc_power * -1)) }}
           {% endif %} 
         {% else %}
-          1
+          {{ battery_effectiveness }}
         {% endif %}
       availability: >
         {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number }}
@@ -122,7 +122,7 @@ template:
         {{ '%02d:%02d' | format((totalhrs | int),((totalhrs*60) % 60) | round(0)) }}
       availability: >
         {{ states('sensor.solaredge_b1_status_text') == 'Charging' }}
-        
+
     - name: "Solar Battery Time to Empty"     
       unique_id: battery_time_to_empty
       state: >

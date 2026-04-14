@@ -1,0 +1,89 @@
+template:
+  - sensor:
+      - name: Electricity – Peak kWh (This Period)
+        unique_id: elec_peak_kwh_this_period
+        device_class: energy
+        unit_of_measurement: kWh
+        state: >
+          {% set cur = states('input_number.elec_reading_peak')|float(0) %}
+          {% set base = states('input_number.elec_start_peak')|float(0) %}
+          {{ max(0, cur - base) }}
+        attributes:
+          billing_period_start: >
+            {% set billing_day = 12 %}
+            {% if now().day >= billing_day %}
+              {{ now().replace(day=billing_day, hour=0, minute=0, second=0, microsecond=0) }}
+            {% else %}
+              {% set prev = (now().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)) %}
+              {{ prev.replace(day=billing_day, hour=0, minute=0, second=0, microsecond=0) }}
+            {% endif %}
+          days_into_period: >
+            {% set billing_day = 12 %}
+            {% if now().day >= billing_day %}
+              {{ (now().replace(hour=0,minute=0,second=0,microsecond=0) - now().replace(day=billing_day,hour=0,minute=0,second=0,microsecond=0)).days }}
+            {% else %}
+              {% set prev = (now().replace(day=1,hour=0,minute=0,second=0,microsecond=0) - timedelta(days=1)) %}
+              {{ (now().replace(hour=0,minute=0,second=0,microsecond=0) - prev.replace(day=billing_day,hour=0,minute=0,second=0,microsecond=0)).days }}
+            {% endif %}
+
+      - name: Electricity – Off-Peak kWh (This Period)
+        unique_id: elec_offpeak_kwh_this_period
+        device_class: energy
+        unit_of_measurement: kWh
+        state: >
+          {% set cur = states('input_number.elec_reading_offpeak')|float(0) %}
+          {% set base = states('input_number.elec_start_offpeak')|float(0) %}
+          {{ max(0, cur - base) }}
+
+      - name: Electricity – Export kWh (This Period)
+        unique_id: elec_export_kwh_this_period
+        device_class: energy
+        unit_of_measurement: kWh
+        state: >
+          {% set cur = states('input_number.elec_reading_export')|float(0) %}
+          {% set base = states('input_number.elec_start_export')|float(0) %}
+          {{ max(0, cur - base) }}
+
+      - name: Electricity – Import kWh (This Period)
+        unique_id: elec_import_kwh_this_period
+        device_class: energy
+        unit_of_measurement: kWh
+        state: >
+          {% set peak = states('sensor.elec_peak_kwh_this_period')|float(0) %}
+          {% set offp = states('sensor.elec_offpeak_kwh_this_period')|float(0) %}
+          {{ peak + offp }}
+
+      - name: Electricity – Net Grid kWh (This Period)
+        unique_id: elec_net_grid_kwh_this_period
+        device_class: energy
+        unit_of_measurement: kWh
+        icon: mdi:transmission-tower
+        state: >
+          {% set importk = states('sensor.elec_import_kwh_this_period')|float(0) %}
+          {% set exportk = states('sensor.elec_export_kwh_this_period')|float(0) %}
+          {{ importk - exportk }}
+
+      - name: Actual Peak Cost
+        unique_id: elec_actual_peak_cost
+        icon: mdi:currency-gbp
+        unit_of_measurement: "£"
+        state: >
+          {% set compensation = (states('sensor.elec_peak_kwh_this_period') | float(0) * (states('sensor.electricity_peak_tariff') | float(0)) %}
+          {{ (compensation) | round(2) }}
+
+      - name: Actual Off Peak Cost
+        unique_id: elec_actual_offpeak_cost
+        icon: mdi:currency-gbp
+        unit_of_measurement: "£"
+        state: >
+          {% set compensation = (states('sensor.elec_offpeak_kwh_this_period') | float(0) * (states('sensor.electricity_offpeak_tariff') | float(0)) %}
+          {{ (compensation) | round(2) }}
+
+      - name: Actual Total Cost
+        unique_id: elec_actual_import_cost
+        icon: mdi:currency-gbp
+        unit_of_measurement: "£"
+        state: >
+          {% set compensation = (states('sensor.elec_actual_peak_cost') | float(0)) + (states('sensor.elec_actual_offpeak_cost') | float(0)) %}
+          {{ (compensation) | round(2) }}
+

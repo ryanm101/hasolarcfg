@@ -1,35 +1,37 @@
 automation:
-  - alias: Charge Solar Battery From Grid
-    id: charge_solar_battery_from_grid
-    mode: single
-    trigger:
-    - platform: state
-      entity_id:
-        - select.solar_imported_power_daily
-      to: offpeak
-    condition:
-    - condition: and
-      conditions:
-        - condition: state
-          entity_id: select.solar_imported_power_daily
-          state: offpeak
-        - type: is_value
-          condition: device
-          device_id: 758241f74124df3fe7af56b6d84e1410
-          entity_id: sensor.solaredge_b1_state_of_energy
-          domain: sensor
-          below: 100
-    action:
-    - service: select.select_option
-      data:
-        option: Charge from Solar Power and Grid
-      target:
-        entity_id: select.solaredge_i1_storage_default_mode
-    - service: select.select_option
-      data:
-        option: Always Allowed
-      target:
-        entity_id: select.solaredge_i1_ac_charge_policy
+#  - alias: Charge Solar Battery From Grid
+#    id: charge_solar_battery_from_grid
+#    description: ""
+#    mode: single
+#    trigger:
+#      - platform: state
+#        entity_id:
+#          - select.solar_imported_power_daily
+#        to: offpeak
+#    condition:
+#      - condition: and
+#        conditions:
+#          - condition: state
+#            entity_id: select.solar_imported_power_daily
+#            state: offpeak
+#          - type: is_battery_level
+#            condition: device
+#            device_id: 80ff50611df8b41939dcd5f83a403c71
+#            entity_id: dd6cbd14d01a24feac5474d7d78addec
+#            domain: sensor
+#            below: 100
+#    action:
+#      - service: select.select_option
+#        data:
+#          option: Charge from Solar Power and Grid
+#        target:
+#          entity_id: select.solaredge_i1_storage_default_mode
+#      - service: select.select_option
+#        data:
+#          option: Always Allowed
+#        target:
+#          entity_id: select.solaredge_i1_ac_charge_policy
+
   - alias: Discharge Solar Battery
     id: discharge_solar_battery
     description: "Export Battery to Grid"
@@ -66,9 +68,9 @@ automation:
     condition:
     - condition: and
       conditions:
-        - condition: state
-          entity_id: binary_sensor.import_profitable
-          state: "off"
+#        - condition: state
+#          entity_id: binary_sensor.import_profitable
+#          state: "off"
         - condition: state
           entity_id: select.solar_imported_power_daily
           state: offpeak
@@ -83,19 +85,94 @@ automation:
     description: ""
     mode: single
     trigger:
-    - platform: state
-      entity_id:
-        - select.solar_imported_power_daily
-      to: peak
+      - platform: state
+        entity_id:
+          - select.solar_imported_power_daily
+        to: peak
+    condition: []
     action:
-    - service: select.select_option
-      data:
-        option: Maximize Self Consumption
-      target:
-        entity_id: select.solaredge_i1_storage_default_mode
-    - service: select.select_option
-      data:
-        option: Disabled
-      target:
-        entity_id: select.solaredge_i1_ac_charge_policy
-    
+      - service: select.select_option
+        data:
+          option: Maximize Self Consumption
+        target:
+          entity_id: select.solaredge_i1_storage_default_mode
+      - service: select.select_option
+        data:
+          option: Disabled
+        target:
+          entity_id: select.solaredge_i1_ac_charge_policy
+  - alias: Notify Battery Not Charging
+    id: notify_battery_not_charging
+    description: ""
+    mode: single
+    trigger:
+      - platform: time
+        at: "01:05:00"
+    condition:
+      - condition: or
+        conditions:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_i1_ac_charge_policy
+                state: Always Allowed
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_i1_storage_default_mode
+                state: Charge from Solar Power and Grid
+    action:
+      - device_id: 13b654b925b2c03ce401d52f06a3ece4
+        domain: mobile_app
+        type: notify
+        message: Battery Not Charging
+        title: Battery Not Charging
+      - device_id: 8fef5f1ad91932a774d80b78e7798b3d
+        domain: mobile_app
+        type: notify
+        message: Battery Not Charging
+        title: Battery Not Charging
+
+  - alias: Charge Solar Battery From Grid_rerun
+    id: charge_solar_battery_from_grid_rerun
+    description: ""
+    mode: single
+    trigger:
+      - platform: time
+        at: "04:00:00"
+    condition:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: select.solar_imported_power_daily
+            state: offpeak
+          - type: is_battery_level
+            condition: device
+            device_id: 80ff50611df8b41939dcd5f83a403c71
+            entity_id: dd6cbd14d01a24feac5474d7d78addec
+            domain: sensor
+            below: 100
+      - condition: or
+        conditions:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_i1_storage_default_mode
+                state: Charge from Solar Power and Grid
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_i1_ac_charge_policy
+                state: Always Allowed
+    action:
+      - service: select.select_option
+        data:
+          option: Charge from Solar Power and Grid
+        target:
+          entity_id: select.solaredge_i1_storage_default_mode
+      - service: select.select_option
+        data:
+          option: Always Allowed
+        target:
+          entity_id: select.solaredge_i1_ac_charge_policy
+
