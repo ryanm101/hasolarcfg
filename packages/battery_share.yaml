@@ -1,0 +1,126 @@
+input_number:
+  battery_share_energy:
+    name: Battery Share Energy
+    min: 0
+    max: 20
+    step: 0.00001
+    unit_of_measurement: kWh
+    mode: box
+    icon: mdi:battery
+  battery_share_cost:
+    name: Battery Share Cost
+    min: 0
+    max: 10
+    step: 0.00001
+    unit_of_measurement: "£"
+    mode: box
+    icon: mdi:currency-gbp
+
+template:
+  - sensor:
+    - name: "Battery Share Value"
+      unique_id: battery_share_value
+      unit_of_measurement: "£/kWh"
+      icon: mdi:currency-gbp
+      state: >
+        {% set E = states('input_number.battery_share_energy') | float(0) %}
+        {% set C = states('input_number.battery_share_cost') | float(0) %}
+        {% if E > 0 %}
+          {{ (C / E) | round(4) }}
+        {% else %}
+          0
+        {% endif %}
+      availability: >
+        {{ states('input_number.battery_share_energy') | is_number and states('input_number.battery_share_cost') | is_number }}
+
+  - sensor:
+    - name: "Battery Share Percent"
+      unique_id: battery_share_percent
+      unit_of_measurement: "%"
+      icon: mdi:percent
+      state: >
+        {% set E = states('input_number.battery_share_energy') | float(0) %}
+        {% set C = states('input_number.battery_share_cost') | float(0) %}
+        {% if E > 0 %}
+          {{ (C / E) | round(4) * 100 }}
+        {% else %}
+          0
+        {% endif %}
+      availability: >
+        {{ states('input_number.battery_share_energy') | is_number and states('input_number.battery_share_cost') | is_number }}
+
+automation:
+  - alias: Battery Share Model Update
+    id: battery_share_model_update
+    description: >
+      Every minute, update battery cost basis (E, C) from instantaneous power
+      sensors. Grid charge adds to both E and C; solar charge adds to E only
+      (zero cost); discharge reduces both E and C at the current share value S.
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: time_pattern
+        minutes: /1
+    action:
+      - variables:
+          dt_hrs: "{{ 1 / 60 }}"
+          grid_w: "{{ [states('sensor.solar_grid_to_battery_w') | float(0), 0] | max }}"
+          solar_w: "{{ [states('sensor.solar_panel_to_battery_w') | float(0), 0] | max }}"
+          discharge_house_w: "{{ [states('sensor.solar_battery_to_house_w') | float(0), 0] | max }}"
+          discharge_grid_w: "{{ [states('sensor.solar_battery_to_grid_w') | float(0), 0] | max }}"
+          E_old: "{{ states('input_number.battery_share_energy') | float(0) }}"
+          C_old: "{{ states('input_number.battery_share_cost') | float(0) }}"
+      - variables:
+          S: "{{ (C_old / E_old) if E_old > 0 else 0 }}"
+          rate: >
+            {% if is_state('select.solar_battery_from_grid_daily', 'peak') %}
+              {{ states('sensor.electricity_peak_tariff') | float(0) }}
+            {% else %}
+              {{ states('sensor.electricity_offpeak_tariff') | float(0) }}
+            {% endif %}
+          grid_kwh: "{{ grid_w * dt_hrs / 1000 }}"
+          solar_kwh: "{{ solar_w * dt_hrs / 1000 }}"
+          discharge_kwh: "{{ (discharge_house_w + discharge_grid_w) * dt_hrs / 1000 }}"
+      - variables:
+          E_new: "{{ [[E_old + grid_kwh + solar_kwh - discharge_kwh, 0] | max, 20] | min | round(5) }}"
+          C_new: "{{ (C_old + (rate * grid_kwh) - (S * discharge_kwh)) | round(5) }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.battery_share_energy
+        data:
+          value: "{{ E_new }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.battery_share_cost
+        data:
+          value: "{{ 0 if E_new <= 0 else [C_new, 0] | max }}"
+
+  - alias: Battery Share Model Initialise
+    id: battery_share_model_initialise
+    description: >
+      On HA start, seed E from current combined battery SoE and C assuming all
+      stored energy came from grid at offpeak rate. Only runs when E is 0 to
+      avoid overwriting accumulated tracking data.
+    mode: single
+    trigger:
+      - platform: homeassistant
+        event: start
+    condition:
+      - condition: template
+        value_template: "{{ states('input_number.battery_share_energy') | float(0) == 0 }}"
+    action:
+      - variables:
+          b1_kwh: "{{ (states('sensor.solaredge_b1_maximum_energy') | float(0) * states('sensor.solaredge_b1_state_of_energy') | float(0)) / 100 }}"
+          b2_kwh: "{{ (states('sensor.solaredge_i1_b2_maximum_energy') | float(0) * states('sensor.solaredge_i1_b2_state_of_energy') | float(0)) / 100 }}"
+          E_init: "{{ (b1_kwh + b2_kwh) | round(5) }}"
+          rate: "{{ states('sensor.electricity_offpeak_tariff') | float(0) }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.battery_share_energy
+        data:
+          value: "{{ E_init }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.battery_share_cost
+        data:
+          value: "{{ (E_init * rate) | round(5) }}"

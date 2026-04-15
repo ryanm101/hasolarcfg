@@ -53,21 +53,23 @@ template:
       state: >
         {% set i1_dc_power = states('sensor.solaredge_i1_dc_power') | float(0) %}
         {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %}
+        {% set b2_dc_power = states('sensor.solaredge_i1_b2_dc_power') | float(0) %}
+        {% set b_dc_power = b1_dc_power + b2_dc_power %}
         {% set battery_effectiveness = states('sensor.solar_battery_effectiveness') %}
 
         {% if (is_state('sensor.solar_battery_effectiveness', 'unavailable') or is_state('sensor.solar_battery_effectiveness', 'unknown') or (battery_effectiveness == 0)) %}
           1
-        {% elif (i1_dc_power + b1_dc_power <= 0) %}
-          {% if (b1_dc_power >= 0 or i1_dc_power <= 0) %}
+        {% elif (i1_dc_power + b_dc_power <= 0) %}
+          {% if (b_dc_power >= 0 or i1_dc_power <= 0) %}
             {{ battery_effectiveness }}
           {% else %}
-            {{ (1 - ((b1_dc_power * -1 - (i1_dc_power)) / b1_dc_power * -1)) }}
-          {% endif %} 
+            {{ (1 - ((b_dc_power * -1 - (i1_dc_power)) / b_dc_power * -1)) }}
+          {% endif %}
         {% else %}
           {{ battery_effectiveness }}
         {% endif %}
       availability: >
-        {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number }}
+        {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number and states('sensor.solaredge_i1_b2_dc_power') | is_number }}
 
     - name: "Solar Inverter Effectiveness Int"
       unique_id: solar_inverter_effectiveness_int
@@ -123,7 +125,7 @@ template:
       availability: >
         {{ states('sensor.solaredge_b1_status_text') == 'Charging' }}
 
-    - name: "Solar Battery Time to Empty"     
+    - name: "Solar Battery Time to Empty"
       unique_id: battery_time_to_empty
       state: >
         {% set batterypower = (states('sensor.solaredge_b1_dc_power') | int * -1) %}
@@ -132,6 +134,77 @@ template:
         {{ '%02d:%02d' | format((totalhrs | int),((totalhrs*60) % 60) | round(0)) }}
       availability: >
         {{ states('sensor.solaredge_b1_status_text') == 'Discharging' }}
+
+
+    - name: "Combined Battery State of Energy"
+      unique_id: combined_battery_state_of_energy
+      unit_of_measurement: "%"
+      state: >
+        {{
+          (
+            states('sensor.solaredge_b1_state_of_energy') | float(0) +
+            states('sensor.solaredge_i1_b2_state_of_energy') | float(0)
+          ) / 2
+        }}
+    
+    - name: "Solaredge B2 Status Text"
+      unique_id: solaredge_b2_status_text
+      state: >
+        {% set status = states('sensor.solaredge_i1_b2_status') %}
+        {% if status == 'B_STATUS_OFF' %}Off
+        {% elif status == 'B_STATUS_STANDBY' %}Standby
+        {% elif status == 'B_STATUS_INIT' %}Initialise
+        {% elif status == 'B_STATUS_CHARGE' %}Charging
+        {% elif status == 'B_STATUS_DISCHARGE' %}Discharging
+        {% elif status == 'B_STATUS_FAULT' %}Fault
+        {% elif status == 'B_STATUS_PRESERVE_CHARGE' %}Preserve Charge
+        {% elif status == 'B_STATUS_IDLE' %}Idle
+        {% elif status == 'B_STATUS_POWER_SAVING' %}Power saving
+        {% else %}{{ states('sensor.solaredge_i1_b2_status') }}
+        {% endif %}
+
+    - name: "Solar Battery B2 Time to Charge"
+      unique_id: battery_b2_time_to_full
+      state: >
+        {% set wattsToCharge = ((states('sensor.solaredge_i1_b2_maximum_energy') | float(0) * 1000) / 100) * (100 - states('sensor.solaredge_i1_b2_state_of_energy') | float) %}
+        {% set totalhrs = (wattsToCharge | float / states('sensor.solaredge_i1_b2_dc_power') | float) | round(2) %}
+        {{ '%02d:%02d' | format((totalhrs | int), ((totalhrs * 60) % 60) | round(0)) }}
+      availability: >
+        {{ states('sensor.solaredge_b2_status_text') == 'Charging' }}
+
+    - name: "Solar Battery B2 Time to Empty"
+      unique_id: battery_b2_time_to_empty
+      state: >
+        {% set batterypower = (states('sensor.solaredge_i1_b2_dc_power') | int * -1) %}
+        {% set wattsToDischarge = ((states('sensor.solaredge_i1_b2_maximum_energy') | float(0) * 1000) / 100) * (states('sensor.solaredge_i1_b2_state_of_energy') | float) %}
+        {% set totalhrs = (wattsToDischarge | float / batterypower | float) | round(2) %}
+        {{ '%02d:%02d' | format((totalhrs | int), ((totalhrs * 60) % 60) | round(0)) }}
+      availability: >
+        {{ states('sensor.solaredge_b2_status_text') == 'Discharging' }}
+
+    - name: "Solar Battery Total Time to Charge"
+      unique_id: battery_total_time_to_full
+      state: >
+        {% set b1_watts = ((states('sensor.solaredge_b1_maximum_energy') | float(0) * 1000) / 100) * (100 - states('sensor.solaredge_b1_state_of_energy') | float(0)) %}
+        {% set b2_watts = ((states('sensor.solaredge_i1_b2_maximum_energy') | float(0) * 1000) / 100) * (100 - states('sensor.solaredge_i1_b2_state_of_energy') | float(0)) %}
+        {% set total_watts = b1_watts + b2_watts %}
+        {% set total_power = (states('sensor.solaredge_b1_dc_power') | float(0)) + (states('sensor.solaredge_i1_b2_dc_power') | float(0)) %}
+        {% set totalhrs = (total_watts / total_power) | round(2) %}
+        {{ '%02d:%02d' | format((totalhrs | int), ((totalhrs * 60) % 60) | round(0)) }}
+      availability: >
+        {{ states('sensor.solaredge_b1_status_text') == 'Charging' or states('sensor.solaredge_b2_status_text') == 'Charging' }}
+
+    - name: "Solar Battery Total Time to Empty"
+      unique_id: battery_total_time_to_empty
+      state: >
+        {% set b1_watts = ((states('sensor.solaredge_b1_maximum_energy') | float(0) * 1000) / 100) * (states('sensor.solaredge_b1_state_of_energy') | float(0)) %}
+        {% set b2_watts = ((states('sensor.solaredge_i1_b2_maximum_energy') | float(0) * 1000) / 100) * (states('sensor.solaredge_i1_b2_state_of_energy') | float(0)) %}
+        {% set total_watts = b1_watts + b2_watts %}
+        {% set total_power = ((states('sensor.solaredge_b1_dc_power') | float(0)) + (states('sensor.solaredge_i1_b2_dc_power') | float(0))) * -1 %}
+        {% set totalhrs = (total_watts / total_power) | round(2) %}
+        {{ '%02d:%02d' | format((totalhrs | int), ((totalhrs * 60) % 60) | round(0)) }}
+      availability: >
+        {{ states('sensor.solaredge_b1_status_text') == 'Discharging' or states('sensor.solaredge_b2_status_text') == 'Discharging' }}
 
 sensor:
   - platform: statistics

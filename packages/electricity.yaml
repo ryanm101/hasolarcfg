@@ -7,16 +7,17 @@ template:
         state: >
           {% set i1_dc_power = states('sensor.solaredge_i1_dc_power') | float(0) %}
           {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %}
+          {% set b2_dc_power = states('sensor.solaredge_i1_b2_dc_power') | float(0) %}
 
-          {% if (is_state('sensor.solaredge_i1_dc_power', 'unknown') or is_state('sensor.solaredge_b1_dc_power', 'unknown')) %}
+          {% if (is_state('sensor.solaredge_i1_dc_power', 'unknown') or is_state('sensor.solaredge_b1_dc_power', 'unknown') or is_state('sensor.solaredge_i1_b2_dc_power', 'unknown')) %}
             0
-          {% elif (i1_dc_power + b1_dc_power <= 0) %}
+          {% elif (i1_dc_power + b1_dc_power + b2_dc_power <= 0) %}
             0
           {% else %}
-            {{ (i1_dc_power + b1_dc_power) }}
+            {{ (i1_dc_power + b1_dc_power + b2_dc_power) }}
           {% endif %}
         availability: >
-          {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number }}
+          {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number and states('sensor.solaredge_i1_b2_dc_power') | is_number }}
 
       - name: "Solar Panel To House W"
         unique_id: solar_panel_to_house_w
@@ -26,32 +27,34 @@ template:
           {% set i1_dc_power = states('sensor.solaredge_i1_dc_power') | float(0) %}
           {% set i1_ac_power = states('sensor.solaredge_i1_ac_power') | float(0) %}
           {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %}
+          {% set b2_dc_power = states('sensor.solaredge_i1_b2_dc_power') | float(0) %}
+          {% set b_dc_power = b1_dc_power + b2_dc_power %}
           {% set m1_ac_power = states('sensor.solaredge_m1_ac_power') | float(0) %}
           {% set inverter_effectiveness = states('sensor.solar_inverter_effectiveness') | float(0) %}
 
-          {% if (b1_dc_power >= 0 and m1_ac_power > 0) %}
+          {% if (b_dc_power >= 0 and m1_ac_power > 0) %}
             {% if (i1_dc_power < 0 and i1_ac_power <= 0) %}
               {{ (i1_dc_power - m1_ac_power) }}
             {% else %}
               {{ (i1_ac_power - m1_ac_power) }}
             {% endif %}
-          {% elif (b1_dc_power >= 0 and m1_ac_power <= 0) %}
+          {% elif (b_dc_power >= 0 and m1_ac_power <= 0) %}
             {% if (i1_dc_power < 0 and i1_ac_power <= 0) %}
               0{#{{ (i1_dc_power) }}#}{# Added 0 #}
             {% else %}
               {{ (i1_ac_power) }}
             {% endif %}
-          {% elif (b1_dc_power < 0) %}
-            {% if (i1_dc_power + b1_dc_power < 0) %}
+          {% elif (b_dc_power < 0) %}
+            {% if (i1_dc_power + b_dc_power < 0) %}
               0
             {% else %}
-              {{ ((i1_dc_power + b1_dc_power) * inverter_effectiveness) }}
-            {% endif %}   
+              {{ ((i1_dc_power + b_dc_power) * inverter_effectiveness) }}
+            {% endif %}
           {% else %}
             0
           {% endif %}
         availability: >
-          {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number and states('sensor.solaredge_m1_ac_power') | is_number }}
+          {{ states('sensor.solaredge_i1_dc_power') | is_number and states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number and states('sensor.solaredge_i1_b2_dc_power') | is_number and states('sensor.solaredge_m1_ac_power') | is_number }}
 
       - name: "Solar Panel To Battery W"
         unique_id: solar_panel_to_battery_w
@@ -61,23 +64,25 @@ template:
           {% set i1_dc_power = states('sensor.solaredge_i1_dc_power') | float(0) %}
           {% set i1_ac_power = states('sensor.solaredge_i1_ac_power') | float(0) %}
           {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %}
+          {% set b2_dc_power = states('sensor.solaredge_i1_b2_dc_power') | float(0) %}
+          {% set b_dc_power = b1_dc_power + b2_dc_power %}
           {% set grid_to_battery_w = states('sensor.solar_grid_to_battery_w') | float(0) %}
 
-          {% if (b1_dc_power > 0) %}
+          {% if (b_dc_power > 0) %}
             {% if (grid_to_battery_w > 0) %} {# Added this snippet instead of 0 #}
               {% if (i1_dc_power < 0 and i1_ac_power <= 0) %}
-                {{ (b1_dc_power+i1_dc_power) }}
+                {{ (b_dc_power + i1_dc_power) }}
               {% else %}
                 0
               {% endif %}
             {% else %}
-              {{ b1_dc_power }}
-            {% endif %} 
+              {{ b_dc_power }}
+            {% endif %}
           {% else %}
             0
           {% endif %}
         availability: >
-          {{ states('sensor.solaredge_b1_dc_power') | is_number }}
+          {{ states('sensor.solaredge_b1_dc_power') | is_number and states('sensor.solaredge_i1_b2_dc_power') | is_number }}
         
       - name: "Solar Panel To Grid W"
         unique_id: solar_panel_to_grid_w
@@ -103,16 +108,18 @@ template:
         icon: mdi:battery-negative
         state: >
           {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %}
+          {% set b2_dc_power = states('sensor.solaredge_i1_b2_dc_power') | float(0) %}
+          {% set b_dc_power = b1_dc_power + b2_dc_power %}
           {% set battery_effectiveness = states('sensor.solar_battery_effectiveness') | float(0) %}
           {% set inverter_effectiveness = states('sensor.solar_inverter_effectiveness') | float(0) %}
 
-          {% if (b1_dc_power < 0) %}
-            {{ (b1_dc_power * -1 * battery_effectiveness * inverter_effectiveness) }}
+          {% if (b_dc_power < 0) %}
+            {{ (b_dc_power * -1 * battery_effectiveness * inverter_effectiveness) }}
           {% else %}
             0
           {% endif %}
         availability: >
-          {{ states('sensor.solaredge_b1_dc_power') | is_number }}
+          {{ states('sensor.solaredge_b1_dc_power') | is_number and states('sensor.solaredge_i1_b2_dc_power') | is_number }}
           
       - name: "Solar Battery To Grid W"
         unique_id: solar_battery_to_grid_w
@@ -151,15 +158,16 @@ template:
         state: >
           {% set i1_ac_power = states('sensor.solaredge_i1_ac_power') | float(0) %}
           {% set b1_dc_power = states('sensor.solaredge_b1_dc_power') | float(0) %}
+          {% set b2_dc_power = states('sensor.solaredge_i1_b2_dc_power') | float(0) %}
           {% set i1_dc_power = states('sensor.solaredge_i1_dc_power') | float(0) %}
 
-          {% if (i1_ac_power <= -25 and b1_dc_power > 0) %} {#added -25 instead of 0#}
+          {% if (i1_ac_power <= -25 and (b1_dc_power + b2_dc_power) > 0) %} {#added -25 instead of 0#}
             {{ i1_dc_power * -1 }} {# Changed to i1_dc_power #}
           {% else %}
             0
           {% endif %}
         availability: >
-          {{ states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number}}
+          {{ states('sensor.solaredge_i1_ac_power') | is_number and states('sensor.solaredge_b1_dc_power') | is_number and states('sensor.solaredge_i1_b2_dc_power') | is_number }}
 
       - name: "Solar Battery In W"
         unique_id: solar_battery_in_w

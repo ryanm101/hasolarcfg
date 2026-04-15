@@ -1,0 +1,507 @@
+title: Home
+views:
+  - theme: Backend-selected
+    path: default_view
+    title: Energy Usage
+    badges: []
+    cards:
+      - square: false
+        columns: 1
+        type: grid
+        cards:
+          - type: custom:tesla-style-solar-power-card
+            name: Home Energy Flow
+            grid_to_house_entity: sensor.solar_grid_to_house_w
+            generation_to_grid_entity: sensor.solar_panel_to_grid_w
+            generation_to_battery_entity: sensor.solar_panel_to_battery_w
+            generation_to_house_entity: sensor.solar_panel_to_house_w
+            battery_to_house_entity: sensor.solar_battery_to_house_w
+            grid_to_battery_entity: sensor.solar_grid_to_battery_w
+            battery_extra_entity:  sensor.combined_battery_state_of_energy
+          - square: true
+            columns: 3
+            type: grid
+            cards:
+              - type: gauge
+                name: Battery 1 Charge
+                entity: sensor.solaredge_b1_state_of_energy
+                unit: '%'
+                needle: true
+                severity:
+                  green: 50
+                  yellow: 20
+                  red: 0
+              - type: gauge
+                name: Battery 1 Status
+                needle: true
+                entity: sensor.solaredge_b1_dc_power
+                unit: W
+                min: -3600
+                max: 5000
+                segments:
+                  - from: -3600
+                    color: '#ff0000'
+                    label: Discharging
+                  - from: 0
+                    color: '#ffffff'
+                    label: Idle
+                  - from: 1
+                    color: '#00ff00'
+                    label: Charging
+              - type: gauge
+                name: Battery 2 Charge
+                entity: sensor.solaredge_i1_b2_state_of_energy
+                unit: '%'
+                needle: true
+                severity:
+                  green: 50
+                  yellow: 20
+                  red: 0
+              - type: gauge
+                name: Battery 2 Status
+                needle: true
+                entity: sensor.solaredge_i1_b2_dc_power
+                unit: W
+                min: -3600
+                max: 5000
+                segments:
+                  - from: -3600
+                    color: '#ff0000'
+                    label: Discharging
+                  - from: 0
+                    color: '#ffffff'
+                    label: Idle
+                  - from: 1
+                    color: '#00ff00'
+                    label: Charging
+              - type: gauge
+                name: Import/Export
+                needle: true
+                entity: sensor.solaredge_m1_ac_power
+                unit: W
+                min: -3600
+                max: 15000
+                segments:
+                  - from: -3600
+                    color: '#00ff00'
+                    label: Exporting
+                  - from: 0
+                    color: '#ffffff'
+                    label: Idle
+                  - from: 1
+                    color: '#ffff00'
+                    label: Importing
+                  - from: 500
+                    color: '#ff0000'
+                    label: Importing
+              - type: gauge
+                name: Battery Share Value
+                entity: sensor.battery_share_percent
+                unit: £/kWh
+                needle: true
+                min: 0
+                max: 20
+                segments:
+                  - from: 0
+                    color: 00ff00
+                    label: Free
+                  - from: 1
+                    color: '#ffff00'
+                    label: Reduced
+                  - from: 13
+                    color: '#ff0000'
+                    label: Offpeak
+          - square: true
+            columns: 3
+            type: grid
+            cards:
+              - type: gauge
+                name: Panel Production
+                entity: sensor.solar_panel_production_w
+                unit: W
+                needle: true
+                max: 6000
+                severity:
+                  green: 1000
+                  yellow: 500
+                  red: 0
+              - type: gauge
+                name: Avg Battery Effectiveness
+                entity: sensor.solar_battery_effectiveness_average_int
+                unit: '%'
+                needle: true
+                severity:
+                  green: 95
+                  yellow: 85
+                  red: 0
+              - type: gauge
+                name: Avg Inverter Effectiveness
+                entity: sensor.solar_inverter_effectiveness_average_int
+                unit: '%'
+                needle: true
+                severity:
+                  green: 95
+                  yellow: 85
+                  red: 0
+          - type: entities
+            title: Current Stats
+            entities:
+              - name: Power Import
+                entity: sensor.solar_imported_power_w
+                icon: mdi:lightning-bolt
+              - name: Power Export
+                entity: sensor.solar_exported_power_w
+                icon: mdi:lightning-bolt
+              - name: Power Generation
+                entity: sensor.solar_panel_production_w
+              - name: Power Consumption
+                icon: mdi:lightning-bolt
+                entity: sensor.solar_house_consumption_w
+              - name: Battery 1 Level
+                icon: mdi:battery
+                entity: sensor.solaredge_b1_state_of_energy
+              - name: Battery 2 Level
+                icon: mdi:battery
+                entity: sensor.solaredge_i1_b2_state_of_energy
+              - name: Battery 1 Power
+                icon: mdi:battery-charging-100
+                entity: sensor.solaredge_b1_dc_power
+              - name: Battery 2 Power
+                icon: mdi:battery-charging-100
+                entity: sensor.solaredge_i1_b2_dc_power
+              - name: Battery 1 Status
+                icon: mdi:eye
+                entity: sensor.solaredge_b1_status_text
+              - name: Battery 2 Status
+                icon: mdi:eye
+                entity: sensor.solaredge_b2_status_text
+              - name: Battery 1 Charge Time
+                icon: mdi:clock
+                entity: sensor.solar_battery_time_to_charge
+              - name: Battery 1 Discharge Time
+                icon: mdi:clock
+                entity: sensor.solar_battery_time_to_empty
+              - name: Battery 2 Charge Time
+                icon: mdi:clock
+                entity: sensor.solar_battery_b2_time_to_charge
+              - name: Battery 2 Discharge Time
+                icon: mdi:clock
+                entity: sensor.solar_battery_b2_time_to_empty
+              - name: Battery Total Charge Time
+                icon: mdi:clock
+                entity: sensor.solar_battery_total_time_to_charge
+              - name: Battery Total Discharge Time
+                icon: mdi:clock
+                entity: sensor.solar_battery_total_time_to_empty
+              - name: Battery Share Value
+                icon: mdi:currency-gbp
+                entity: sensor.battery_share_value
+          - square: true
+            columns: 2
+            type: grid
+            cards:
+              - hours_to_show: 24
+                graph: line
+                type: sensor
+                entity: sensor.solar_accounting_total_daily
+                detail: 2
+              - hours_to_show: 72
+                graph: line
+                type: sensor
+                entity: sensor.solar_accounting_total_monthly
+                detail: 2
+          - type: entities
+            title: Daily Stats
+            entities:
+              - name: Peak Cost
+                entity: sensor.solar_accounting_peak_daily
+                icon: mdi:currency-gbp
+              - name: Offpeak Cost
+                entity: sensor.solar_accounting_offpeak_daily
+                icon: mdi:currency-gbp
+              - name: Peak Usage
+                entity: sensor.solar_house_consumption_daily_peak
+                icon: mdi:lightning-bolt
+              - name: Offeak Usage
+                entity: sensor.solar_house_consumption_daily_offpeak
+                icon: mdi:lightning-bolt
+          - type: entities
+            title: Monthly Stats
+            entities:
+              - name: Peak Cost
+                entity: sensor.solar_accounting_peak_monthly
+                icon: mdi:currency-gbp
+              - name: Offpeak Cost
+                entity: sensor.solar_accounting_offpeak_monthly
+                icon: mdi:currency-gbp
+              - name: Peak Usage
+                entity: sensor.solar_house_consumption_monthly_peak
+                icon: mdi:lightning-bolt
+              - name: Offeak Usage
+                entity: sensor.solar_house_consumption_monthly_offpeak
+                icon: mdi:lightning-bolt
+          - type: entities
+            title: Tariffs
+            entities:
+              - name: Peak Tariff
+                entity: sensor.electricity_peak_tariff
+                icon: mdi:currency-gbp
+              - name: Offpeak Tariff
+                entity: sensor.electricity_offpeak_tariff
+                icon: mdi:currency-gbp
+              - name: Export Tariff
+                entity: sensor.electricity_export_tariff
+                icon: mdi:currency-gbp
+              - name: Discounted Peak Tariff
+                entity: sensor.electricity_peak_tariff_discount_rate
+                icon: mdi:currency-gbp
+              - name: Discounted Offpeak Tariff
+                entity: sensor.electricity_offpeak_tariff_discount_rate
+                icon: mdi:currency-gbp
+              - name: Import Profitable
+                entity: binary_sensor.import_profitable
+                icon: mdi:cash-plus
+  - theme: Backend-selected
+    title: Energy Costs
+    path: energy-costs
+    badges: []
+    cards:
+      - square: true
+        columns: 2
+        type: grid
+        title: Stats
+        cards:
+          - type: entities
+            title: Daily Stats
+            entities:
+              - name: Total Cost
+                entity: sensor.solar_accounting_total_daily
+                icon: mdi:currency-gbp
+              - name: Discounted Cost
+                entity: sensor.solar_accounting_total_daily_discounted
+                icon: mdi:currency-gbp
+          - type: entities
+            title: Weekly Stats
+            entities:
+              - name: Total Cost
+                entity: sensor.solar_accounting_total_weekly
+                icon: mdi:currency-gbp
+              - name: Discounted Cost
+                entity: sensor.solar_accounting_total_weekly_discounted
+                icon: mdi:currency-gbp
+          - type: entities
+            title: Monthly Stats
+            entities:
+              - name: Total Cost
+                entity: sensor.solar_accounting_total_monthly
+                icon: mdi:currency-gbp
+              - name: Discounted Cost
+                entity: sensor.solar_accounting_total_monthly_discounted
+                icon: mdi:currency-gbp
+          - type: entities
+            title: Yearly Stats
+            entities:
+              - name: Total Cost
+                entity: sensor.solar_accounting_total_yearly
+                icon: mdi:currency-gbp
+              - name: Discounted Cost
+                entity: sensor.solar_accounting_total_yearly_discounted
+                icon: mdi:currency-gbp
+          - type: entities
+            title: Export Stats
+            entities:
+              - name: Daily Export
+                entity: sensor.solar_accounting_export_daily
+                icon: mdi:currency-gbp
+              - name: Weekly Export
+                entity: sensor.solar_accounting_export_weekly
+                icon: mdi:currency-gbp
+              - name: Monthly Export
+                entity: sensor.solar_accounting_export_monthly
+                icon: mdi:currency-gbp
+              - name: Yearly Export
+                entity: sensor.solar_accounting_export_yearly
+                icon: mdi:currency-gbp
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Electricity – Manual Meter Entry
+            entities:
+              - entity: input_number.elec_reading_peak
+                name: Current Meter – Peak
+              - entity: input_number.elec_reading_offpeak
+                name: Current Meter – Off-Peak
+              - entity: input_number.elec_reading_export
+                name: Current Meter – Export
+              - entity: input_number.elec_start_peak
+                name: Period Start – Peak
+              - entity: input_number.elec_start_offpeak
+                name: Period Start – Off-Peak
+              - entity: input_number.elec_start_export
+                name: Period Start – Export
+              - entity: input_button.elec_start_new_period
+                name: Start New Billing Period (Manual)
+          - type: entities
+            title: Usage This Billing Period (12th → 12th)
+            entities:
+              - entity: sensor.electricity_peak_kwh_this_period
+                name: Peak kWh
+              - entity: sensor.electricity_off_peak_kwh_this_period
+                name: Off-Peak kWh
+              - entity: sensor.electricity_export_kwh_this_period
+                name: Export kWh
+              - type: divider
+              - entity: sensor.electricity_import_kwh_this_period
+                name: Import kWh (Peak+Off-Peak)
+              - entity: sensor.electricity_net_grid_kwh_this_period
+                name: Net Grid kWh (Import − Export)
+          - type: gauge
+            name: Import kWh (This Period)
+            entity: sensor.electricity_import_kwh_this_period
+            min: 0
+            max: 1000
+            unit: kWh
+        title: Manual
+  - theme: Backend-selected
+    title: Solar Energy
+    path: solar-energy
+    badges: []
+    cards:
+      - square: false
+        columns: 1
+        type: grid
+        cards:
+          - type: entities
+            entities:
+              - name: Sunrise
+                entity: sensor.sun_rise_today
+                icon: mdi:weather-sunset-up
+              - name: Sunset
+                entity: sensor.sun_set_today
+                icon: mdi:weather-sunset-down
+              - name: Daylight Hours
+                entity: sensor.sundaylight_today
+                icon: mdi:weather-sunny
+      - type: entities
+        entities:
+          - entity: select.solaredge_i1_storage_control_mode
+          - entity: select.solaredge_i1_ac_charge_policy
+          - entity: select.solaredge_i1_storage_default_mode
+          - entity: select.solaredge_i1_limit_control
+          - entity: select.solaredge_i1_limit_control_mode
+          - entity: select.solaredge_i1_storage_command_mode
+        title: SolarEdge Control
+      - type: entity
+        entity: sensor.solaredge_i1_status
+        state_color: false
+        icon: mdi:factory
+      - type: entities
+        entities:
+          - entity: sensor.solaredge_i1_dc_power
+      - type: custom:power-distribution-card
+        title: ''
+        entities:
+          - decimals: 2
+            display_abs: true
+            name: solar
+            unit_of_display: adaptive
+            icon: mdi:solar-power
+            producer: true
+            entity: sensor.solaredge_dc_power
+            preset: solar
+          - decimals: 2
+            display_abs: true
+            name: grid
+            unit_of_display: adaptive
+            icon: mdi:transmission-tower
+            entity: sensor.shelly_em_channel_1_power
+            preset: grid
+            threshold: ''
+            icon_color:
+              bigger: ''
+              equal: ''
+              smaller: ''
+            invert_value: false
+          - decimals: 2
+            display_abs: true
+            name: home
+            unit_of_display: adaptive
+            consumer: true
+            icon: mdi:home-assistant
+            entity: sensor.household_power_consumption
+            preset: home
+            threshold: ''
+            icon_color:
+              bigger: ''
+              equal: ''
+              smaller: ''
+            invert_value: true
+          - decimals: 2
+            display_abs: true
+            name: battery
+            unit_of_display: W
+            consumer: true
+            icon: mdi:battery-outline
+            producer: true
+            entity: sensor.solaredge_battery1_power
+            preset: battery
+            threshold: ''
+            icon_color:
+              bigger: ''
+              equal: ''
+              smaller: ''
+            invert_value: true
+        center:
+          type: bars
+          content:
+            - preset: autarky
+              name: autark
+              bar_color: green
+              bar_bg_color: ''
+              entity: sensor.solar_autarkie_ratio
+            - preset: ratio
+              name: selbst
+              bar_color: blue
+              bar_bg_color: ''
+              entity: sensor.solar_selfconsumption_ratio
+        animation: slide
+      - type: entities
+        entities:
+          - entity: sensor.solar_exported_power_w
+          - entity: sensor.solar_house_consumption_w
+      - type: entities
+        entities:
+          - entity: sensor.energy_next_hour
+          - entity: sensor.energy_current_hour
+          - entity: sensor.energy_production_today
+          - entity: sensor.energy_production_tomorrow
+          - entity: sensor.power_production_now
+          - entity: sensor.power_highest_peak_time_today
+          - entity: sensor.power_highest_peak_time_tomorrow
+        title: East Panels
+      - type: entities
+        entities:
+          - entity: sensor.energy_next_hour_3
+          - entity: sensor.energy_current_hour_3
+          - entity: sensor.energy_production_today_3
+          - entity: sensor.energy_production_tomorrow_3
+          - entity: sensor.power_production_now_3
+          - entity: sensor.power_highest_peak_time_today_3
+          - entity: sensor.power_highest_peak_time_tomorrow_3
+        title: West Panels
+      - type: entities
+        entities:
+          - entity: sensor.energy_next_hour_2
+          - entity: sensor.energy_current_hour_2
+          - entity: sensor.energy_production_today_2
+          - entity: sensor.energy_production_tomorrow_2
+          - entity: sensor.power_production_now_2
+          - entity: sensor.power_highest_peak_time_today_2
+          - entity: sensor.power_highest_peak_time_tomorrow_2
+        title: South Panels
+      - type: entities
+        entities:
+          - entity: sensor.power_production_now
+          - entity: sensor.power_production_now_2
+          - entity: sensor.power_production_now_3
+          - entity: sensor.solar_panel_production_w
