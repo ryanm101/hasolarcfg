@@ -63,7 +63,7 @@ homeassistant:
 `python3 ./tariffSwitchGen.py packages/energy_utilities.yaml packages/electricity_tarriff_automations.yaml`
 
 
-# **** NEW **** Formula - NOT Implemented yet
+# **** NEW **** Formula
 
 # Battery Energy Share Value Model
 
